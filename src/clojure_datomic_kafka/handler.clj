@@ -14,6 +14,7 @@
            (GET "/" [] "Hello World")
            (POST "/players" req (save-player req))
            (GET "/players" _ (find-all-players))
+           (PUT "/players/:id" req (update-player req))
            (POST "/events" req (save-event req))
            (route/not-found "Not Found"))
 

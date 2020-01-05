@@ -40,20 +40,24 @@
                                    :player/name (:name player)
                                    :player/life (:life player)
                                    }])]
-    (assoc player :id (-> result :tempids (get "player")))
-    )
-  )
+    (assoc player :id (-> result :tempids (get "player")))))
+
+(defn update-player [player]
+  (do @(d/transact conn [{
+                          :db/id      (Long/valueOf (:id player))
+                          :player/name (:name player)
+                          :player/life (:life player)
+                          }])
+      player))
 
 (def all-players '[:find ?e ?name ?life
                    :where [?e :player/name ?name]
                    [?e :player/life ?life]])
 
 (defn to-player [single-result]
-  {
-   :id   (get single-result 0)
+  {:id   (get single-result 0)
    :name (get single-result 1)
-   :life (get single-result 2)
-   })
+   :life (get single-result 2)})
 
 (defn to-players [q-result]
   (map to-player q-result))
@@ -70,5 +74,4 @@
                                    :event/damage (:damage event)
                                    :event/player (:player event)
                                    }])]
-    (assoc event :id (-> result :tempids (get "event")))
-    ))
+    (assoc event :id (-> result :tempids (get "event")))))
