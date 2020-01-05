@@ -32,9 +32,7 @@
               :db/doc         "event player who will receive damage"}
              ])
 
-
-(-> (d/transact conn schema)
-    (println))
+(d/transact conn schema)
 
 (defn save-player [player]
   (let [result @(d/transact conn [{
@@ -45,6 +43,25 @@
     (assoc player :id (-> result :tempids (get "player")))
     )
   )
+
+(def all-players '[:find ?e ?name ?life
+                   :where [?e :player/name ?name]
+                   [?e :player/life ?life]])
+
+(defn to-player [single-result]
+  {
+   :id   (get single-result 0)
+   :name (get single-result 1)
+   :life (get single-result 2)
+   })
+
+(defn to-players [q-result]
+  (map to-player q-result))
+
+(defn find-all-players []
+  (let [db (d/db conn)]
+    (-> (d/q all-players db)
+        (to-players))))
 
 (defn save-event [event]
   (let [result @(d/transact conn [{

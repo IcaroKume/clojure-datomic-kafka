@@ -13,6 +13,7 @@
 (defroutes app-routes
            (GET "/" [] "Hello World")
            (POST "/players" req (save-player req))
+           (GET "/players" _ (find-all-players))
            (POST "/events" req (save-event req))
            (route/not-found "Not Found"))
 
