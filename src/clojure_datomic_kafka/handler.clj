@@ -16,6 +16,7 @@
            (POST "/players" req (save-player req))
            (PUT "/players/:id" req (update-player req))
            (GET "/players/:id" req (find-player req))
+           (GET "/players/:id/life_history" req (find-player-life-history req))
            (POST "/events" req (save-event req))
            (route/not-found "Not Found"))
 

@@ -14,5 +14,10 @@
                                    (Long/valueOf)
                                    (db/find-player))))
 
+(defn find-player-life-history [req]
+  (ring.util.response/response (-> ((comp :id :params) req)
+                                   (Long/valueOf)
+                                   (db/find-player-life-history))))
+
 (defn find-all-players []
   (ring.util.response/response (db/find-all-players)))

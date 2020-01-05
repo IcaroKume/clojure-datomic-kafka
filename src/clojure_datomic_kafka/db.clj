@@ -77,6 +77,18 @@
     (-> (d/entity db id)
         (to-player id))))
 
+(defn find-player-life-history [id]
+  (let [db (d/history (d/db conn))]
+    (->> (d/q '[:find ?life ?tx ?added
+                :in $ ?e
+                :where [?e :player/life ?life ?tx ?added]] db id)
+         (map #(->> %
+                    (map vector [:life :tx :added])
+                    (into {})))
+         (filter #(= (:added %) true))
+         (sort-by :tx)
+         (#(map :life %)))))
+
 (defn save-event [event]
   (let [result @(d/transact conn [{
                                    :db/id        "event"

@@ -24,11 +24,11 @@
   (testing "update player"
     (let [response (app (-> (mock/request :put "/players/17592186045418")
                             (mock/json-body {:name "kk"
-                                             :life 20})))]
+                                             :life 30})))]
       (is (= (:status response) 200))
       (let [body (json/parse-string (:body response) true)]
         (is (= (:name body) "kk"))
-        (is (= (:life body) 20))
+        (is (= (:life body) 30))
         (not (nil? (:id body))))))
 
   ;; TODO reset database after each test?
@@ -41,11 +41,19 @@
         (is (= (:name (first body)) "kk")))))
 
   ;; TODO 17592186045418 because is the first entity
-  (testing "get players"
+  (testing "get player"
     (let [response (app (mock/request :get "/players/17592186045418"))]
       (is (= (:status response) 200))
       (let [body (json/parse-string (:body response) true)]
         (is (= (:name body) "kk")))))
+
+  ;; TODO 17592186045418 because is the first entity
+  (testing "get player history"
+    (let [response (app (mock/request :get "/players/17592186045418/life_history"))]
+      (is (= (:status response) 200))
+      (let [body (json/parse-string (:body response) true)]
+        (is (= (str (type body)) "class clojure.lang.LazySeq"))
+        (is (= body [20 30])))))
 
   (testing "save events"
     (let [response (app (-> (mock/request :post "/events")
