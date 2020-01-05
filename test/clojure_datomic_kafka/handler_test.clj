@@ -20,7 +20,7 @@
         (is (= (:life body) 20))
         (not (nil? (:id body))))))
 
-  ;; TODO 17592186045418 because is the first entity?
+  ;; TODO 17592186045418 because is the first entity
   (testing "update player"
     (let [response (app (-> (mock/request :put "/players/17592186045418")
                             (mock/json-body {:name "kk"
@@ -39,6 +39,13 @@
         (is (= (str (type body)) "class clojure.lang.LazySeq"))
         (is (= (count body) 1))
         (is (= (:name (first body)) "kk")))))
+
+  ;; TODO 17592186045418 because is the first entity
+  (testing "get players"
+    (let [response (app (mock/request :get "/players/17592186045418"))]
+      (is (= (:status response) 200))
+      (let [body (json/parse-string (:body response) true)]
+        (is (= (:name body) "kk")))))
 
   (testing "save events"
     (let [response (app (-> (mock/request :post "/events")

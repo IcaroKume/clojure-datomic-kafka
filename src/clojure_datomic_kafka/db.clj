@@ -44,7 +44,7 @@
 
 (defn update-player [player]
   (do @(d/transact conn [{
-                          :db/id      (Long/valueOf (:id player))
+                          :db/id       (:id player)
                           :player/name (:name player)
                           :player/life (:life player)
                           }])
@@ -54,10 +54,15 @@
                    :where [?e :player/name ?name]
                    [?e :player/life ?life]])
 
-(defn to-player [single-result]
-  {:id   (get single-result 0)
-   :name (get single-result 1)
-   :life (get single-result 2)})
+(defn to-player
+  ([single-result]
+   {:id   (get single-result 0)
+    :name (get single-result 1)
+    :life (get single-result 2)})
+  ([single-result id]
+   {:id   id
+    :name (:player/name single-result)
+    :life (:player/life single-result)}))
 
 (defn to-players [q-result]
   (map to-player q-result))
@@ -66,6 +71,11 @@
   (let [db (d/db conn)]
     (-> (d/q all-players db)
         (to-players))))
+
+(defn find-player [id]
+  (let [db (d/db conn)]
+    (-> (d/entity db id)
+        (to-player id))))
 
 (defn save-event [event]
   (let [result @(d/transact conn [{
