@@ -19,6 +19,7 @@
            (PUT "/players/:id" req (update-player req))
            (DELETE "/players/:id" req (delete req))
            (GET "/players/:id" req (find-player req))
+           (GET "/players/:name/events/by_name" req (find-events-by-player-name req))
            (GET "/players/:id/life_history" req (find-player-life-history req))
            (POST "/events" req (save-event req))
            (route/not-found "Not Found"))

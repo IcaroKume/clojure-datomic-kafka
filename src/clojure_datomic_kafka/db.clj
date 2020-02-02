@@ -28,7 +28,7 @@
               :db/cardinality :db.cardinality/one
               :db/doc         "event damage"}
              {:db/ident       :event/player
-              :db/valueType   :db.type/long
+              :db/valueType   :db.type/ref
               :db/cardinality :db.cardinality/one
               :db/doc         "event player who will receive damage"}
              ])
@@ -54,6 +54,12 @@
                    :where [?e :player/name ?name]
                    [?e :player/life ?life]])
 
+(def events-by-player-name
+  '[:find (pull ?e [:event/code :event/damage :event/player])
+    :in $ ?name
+    :where [?p :player/name ?name]
+    [?e :event/player ?p]])
+
 (defn to-player
   ([single-result]
    {:id   (get single-result 0)
@@ -64,15 +70,28 @@
     :name (:player/name single-result)
     :life (:player/life single-result)}))
 
-(defn to-players [q-result]
+(defn to-players
+  [q-result]
   (map to-player q-result))
 
-(defn find-all-players []
+(defn to-event
+  [[single-result]]
+  {:code   (:event/code single-result)
+   :damage (:event/damage single-result)
+   :player (-> single-result :event/player :db/id)})
+
+(defn to-events
+  [q-result]
+  (map to-event q-result))
+
+(defn find-all-players
+  []
   (let [db (d/db conn)]
     (-> (d/q all-players db)
         (to-players))))
 
-(defn find-player [id]
+(defn find-player
+  [id]
   (let [db (d/db conn)]
     (-> (d/entity db id)
         (to-player id))))
@@ -82,7 +101,8 @@
   (-> @(d/transact conn [{:db/excise id}])
       log-and-return))
 
-(defn find-player-life-history [id]
+(defn find-player-life-history
+  [id]
   (let [db (d/history (d/db conn))]
     (->> (d/q '[:find ?life ?tx ?added
                 :in $ ?e
@@ -93,6 +113,13 @@
          (filter #(= (:added %) true))
          (sort-by :tx)
          (#(map :life %)))))
+
+(defn find-events-by-player-name
+  [name]
+  (let [db (d/db conn)]
+    (->
+      (d/q events-by-player-name db name)
+      (to-events))))
 
 (defn save-event [event]
   (let [result @(d/transact conn [{

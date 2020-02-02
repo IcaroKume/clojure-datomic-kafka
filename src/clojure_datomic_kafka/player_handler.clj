@@ -22,6 +22,10 @@
 (defn find-all-players []
   (ring.util.response/response (db/find-all-players)))
 
+(defn find-events-by-player-name [req]
+  (ring.util.response/response (-> ((comp :name :params) req)
+                                   (db/find-events-by-player-name))))
+
 (defn delete [req]
   (db/delete-player (-> req :params :id (Long/valueOf)))
   {:status  204
