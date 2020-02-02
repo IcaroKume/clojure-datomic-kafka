@@ -9,6 +9,7 @@
                  [ring/ring-json "0.5.0"]
                  [org.testcontainers/testcontainers "1.12.3" ]
                  [org.testcontainers/kafka "1.12.3" ]
+                 [org.apache.kafka/kafka-clients "2.3.1"]
                  [com.datomic/datomic-free "0.9.5697"]]
   :main clojure-datomic-kafka.handler
   :profiles

@@ -1,5 +1,6 @@
 (ns clojure-datomic-kafka.db
-  (:require [datomic.api :as d]))
+  (:require [datomic.api :as d]
+            [clojure-datomic-kafka.utils :refer :all]))
 
 ;; https://docs.datomic.com/on-prem/peer-getting-started.html#connecting
 (d/create-database "datomic:mem://events")
@@ -46,8 +47,7 @@
   (do @(d/transact conn [{
                           :db/id       (:id player)
                           :player/name (:name player)
-                          :player/life (:life player)
-                          }])
+                          :player/life (:life player)}])
       player))
 
 (def all-players '[:find ?e ?name ?life
@@ -77,6 +77,11 @@
     (-> (d/entity db id)
         (to-player id))))
 
+(defn delete-player
+  [id]
+  (-> @(d/transact conn [{:db/excise id}])
+      log-and-return))
+
 (defn find-player-life-history [id]
   (let [db (d/history (d/db conn))]
     (->> (d/q '[:find ?life ?tx ?added
@@ -97,3 +102,9 @@
                                    :event/player (:player event)
                                    }])]
     (assoc event :id (-> result :tempids (get "event")))))
+
+(defn get-log
+  []
+  (-> conn
+      d/log
+      (d/tx-range nil nil)))
