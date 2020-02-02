@@ -60,6 +60,12 @@
     :where [?p :player/name ?name]
     [?e :event/player ?p]])
 
+; another way to do the same query but result is different
+; (def events-by-player-name
+;   '[:find (pull ?p [:db/id {:event/_player [:event/code :event/damage]}])
+;    :in $ ?name
+;    :where [?p :player/name ?name]])
+
 (defn to-player
   ([single-result]
    {:id   (get single-result 0)
